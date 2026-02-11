@@ -1,0 +1,115 @@
+x-mapped-user-container: &x-mapped-user-container
+  args:
+    UID: ERR
+    GID: ERR
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx.dockerfile
+      <<: *x-mapped-user-container
+    ports:
+      - "8000:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www/html/
+    links:
+      - php-fpm
+  php-fpm:
+    build:
+      context: .
+      dockerfile: Dockerfile-fpm.dockerfile
+      <<: *x-mapped-user-container
+    volumes:
+      - ./:/var/www/html/
+    environment:
+      - DB_CONNECTION=pgsql
+      - SESSION_DRIVER=file
+      - APP_DEBUG=true
+      - APP_ENV=local
+      - APP_KEY=base64:yFEh+jTepLsusyVKLmFY3ukDfJrshbB3J6jVzVk1guw=
+    links:
+      - postgresql
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      nodejs:
+        condition: service_started
+      postgresql-test:
+        condition: service_healthy
+    dns:
+      - 8.8.8.8
+  queue-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-fpm.dockerfile
+      <<: *x-mapped-user-container
+    volumes:
+      - ./:/var/www/html/
+    environment:
+      - SESSION_DRIVER=file
+      - APP_DEBUG=true
+      - APP_ENV=local
+      - APP_KEY=base64:yFEh+jTepLsusyVKLmFY3ukDfJrshbB3J6jVzVk1guw=
+    links:
+      - postgresql
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    dns:
+      - 8.8.8.8
+    command:
+      - /usr/local/bin/php
+      - /var/www/html/artisan
+      - queue:work
+  nodejs:
+    build:
+      context: .
+      dockerfile: Dockerfile-nodejs.dockerfile
+      <<: *x-mapped-user-container
+    volumes:
+      - ./:/var/www/html/
+    ports:
+      - "5173:5173"
+  postgresql:
+    image: docker.io/postgres:18.1
+    environment:
+      - POSTGRES_PASSWORD=laravel
+      - POSTGRES_DB=ecomail
+      - POSTGRES_USER=laravel
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h 127.0.0.1",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    ports:
+      - "5432:5432"
+  postgresql-test:
+    image: docker.io/postgres:18.1
+    environment:
+      - POSTGRES_PASSWORD=laravel
+      - POSTGRES_DB=ecomail
+      - POSTGRES_USER=laravel
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h 127.0.0.1",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    ports:
+      - "5433:5432"
+
+volumes:
+ postgresql-data:
