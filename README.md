@@ -12,6 +12,9 @@ Getting started
     * Enjoy your coffee :)
     * Laravel will serve the app at http://localhost:8000
 
+* **Notes:**
+  * Tested on Linux. I don't have a Windows machine, so I can't confirm whether the development setup runs under WSL.
+
 ---
 
 Tests
