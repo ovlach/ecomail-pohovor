@@ -26,7 +26,7 @@
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^11.5.3",
+        "phpunit/phpunit": "^13.0.0",
         "slevomat/coding-standard": "^8.27",
         "squizlabs/php_codesniffer": "^4.0"
     },
