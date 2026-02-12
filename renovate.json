@@ -1,0 +1,13 @@
+{
+    "extends": ["config:recommended"],
+    "enabledManagers": ["composer"],
+    "packageRules": [
+        {
+            "matchUpdateTypes": ["minor", "patch"],
+            "groupName": "php dependencies"
+        }
+    ],
+    "prConcurrentLimit": 100,
+    "prHourlyLimit": 20,
+    "branchConcurrentLimit": 100
+}
