@@ -58,6 +58,7 @@ Future directions
 * [ ] Store import state in Redis (no database polling)
 * [ ] Implement observability (especially Prometheus for import time and flow, OTel, Loki, Grafana, etc.)
 * [ ] Integrate a CI/CD pipeline.
+* [ ] Improve full-text search and results ranking (elastic?) 
 
 ---
 
